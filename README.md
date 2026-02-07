@@ -47,3 +47,24 @@ Run each script independently on a Linux system:
 python3 latency_monitor.py
 python3 interrupt_monitor.py
 python3 network_jitter.py
+```
+---
+
+## Key Learnings
+
+1. CPU utilization alone is insufficient to assess system performance
+2. Interrupt storms can significantly increase latency and jitter
+3. PHY or hardware-level issues often surface as OS-level symptoms
+4. Time-based correlation is essential for root cause analysis
+
+---
+
+## Environment
+
+Linux, Python 3.x, No external dependencies
+
+---
+
+## Author
+
+Shashwata Ghosh
