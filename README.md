@@ -1,67 +1,147 @@
 # PHY Systems Latency & Interrupt Analyzer
 
+A lightweight system profiling tool to analyze how low-level OS behavior (scheduling, interrupts, and network variability) impacts application-level performance.
+
+---
+
 ## Overview
-This project explores system-level performance behavior by monitoring
-CPU scheduling latency, interrupt activity, and network jitter on Linux.
 
-The goal is to understand how low-level events (interrupt bursts,
-PHY-level instability, and OS scheduling delays) manifest as
-application-level performance issues.
+This project explores system-level performance by monitoring:
 
-This project is focused on **system analysis and root cause reasoning**
-rather than application development.
+- CPU scheduling latency  
+- Interrupt activity  
+- Network latency and jitter  
+
+The goal is to understand how low-level OS events manifest as real-world performance issues, even when traditional metrics like CPU utilization appear normal.
 
 ---
 
 ## Motivation
-Real-time applications often suffer from performance degradation even
-when CPU utilization appears low. Such issues are frequently caused by
-interrupt storms, scheduling delays, or PHY/network instability.
 
-This project helps visualize and correlate these effects over time.
+Modern systems often experience performance degradation due to:
+
+- Interrupt storms  
+- Scheduler delays  
+- Network instability  
+
+These issues are not always visible through standard monitoring tools.
+
+This project focuses on measuring, correlating, and analyzing these hidden performance factors.
 
 ---
 
 ## Components
 
 ### 1. Scheduling Latency Monitor
-Measures OS scheduling jitter by observing deviations from expected
-sleep intervals. Useful for identifying latency spikes caused by
-interrupt pressure or context switching.
+Measures OS scheduling delays by comparing expected sleep duration with actual wake-up time using high-resolution timers.
 
-### 2. Interrupt Activity Monitor
-Tracks changes in `/proc/interrupts` to detect abnormal interrupt rates
-that may indicate hardware or PHY-level issues.
-
-### 3. Network Jitter Monitor
-Uses ICMP echo requests to measure latency variation and jitter, helping
-identify timing instability even when average bandwidth remains high.
+- Captures scheduler jitter and timing deviations  
+- Helps identify latency spikes due to context switching or CPU contention  
 
 ---
 
-## Usage
+### 2. Interrupt Activity Monitor
+Tracks system activity using OS-level statistics:
 
-Run each script independently on a Linux system:
+- On Linux: `/proc/interrupts`  
+- On macOS: approximated using `vm_stat`  
 
-```bash
-python3 latency_monitor.py
-python3 interrupt_monitor.py
-python3 network_jitter.py
-```
+- Detects sudden spikes in system activity  
+- Useful for identifying interrupt bursts and system disturbances  
+
+---
+
+### 3. Network Jitter Monitor
+Measures network latency using ICMP (ping):
+
+- Computes average latency and jitter (standard deviation)  
+- Identifies instability even when average latency is low  
+
+---
+
+### 4. Unified System Monitor
+Combines all signals into a single time-aligned stream:
+
+- Scheduling latency  
+- Interrupt rate  
+- Network latency  
+
+Includes:
+
+- Real-time logging  
+- Spike detection  
+- Basic correlation between system events  
+
+---
+
+## Data Collection
+
+All metrics are logged into:
+
+system_metrics.csv
+
+Format:
+
+timestamp, latency_ms, interrupts_per_sec, network_latency_ms
+
+This enables offline analysis and visualization.
+
+---
+
+## Visualization
+
+The project includes plotting scripts to analyze:
+
+- Latency over time  
+- Interrupt activity over time  
+- Network latency trends  
+- Correlation between interrupts and latency  
+
+Example insight:
+
+Latency spikes often align with bursts in system activity, indicating scheduler disruption due to underlying OS events.
+
 ---
 
 ## Key Learnings
 
-1. CPU utilization alone is insufficient to assess system performance
-2. Interrupt storms can significantly increase latency and jitter
-3. PHY or hardware-level issues often surface as OS-level symptoms
-4. Time-based correlation is essential for root cause analysis
+- CPU utilization alone is insufficient to diagnose performance issues  
+- Interrupt bursts can significantly impact scheduling latency  
+- Network jitter can indicate deeper system instability  
+- Time-aligned metrics are essential for root-cause analysis  
 
 ---
 
 ## Environment
 
-Linux, Python 3.x, No external dependencies
+- macOS (development using vm_stat)  
+- Linux (recommended for full functionality using /proc/interrupts)  
+- Python 3.x  
+
+Dependencies:
+
+pip install pandas matplotlib
+
+---
+
+## Usage
+
+Run unified monitor:
+
+python3 main_monitor.py
+
+Generate plots:
+
+python3 plot_metrics.py
+
+---
+
+## Future Improvements
+
+- Real-time visualization dashboard  
+- More accurate interrupt tracking on macOS  
+- Integration with system tracing tools (e.g., perf, eBPF)  
+- Automated anomaly detection  
 
 ---
 
